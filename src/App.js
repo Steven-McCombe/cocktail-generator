@@ -1,27 +1,48 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Select from 'react-select';
+
+const ingredientOptions = [
+  // Liquors
+  { value: 'vodka', label: 'Vodka' },
+  { value: 'gin', label: 'Gin' },
+  { value: 'rum', label: 'Rum' },
+  // Whiskeys
+  { value: 'scotch', label: 'Scotch' },
+  { value: 'bourbon', label: 'Bourbon' },
+  // Mixers
+  { value: 'tonic water', label: 'Tonic Water' },
+  { value: 'orange juice', label: 'Orange Juice' },
+  // Herbs
+  { value: 'mint', label: 'Mint' },
+  { value: 'basil', label: 'Basil' },
+  // Fruits
+  { value: 'lemon', label: 'Lemon' },
+  { value: 'lime', label: 'Lime' },
+];
 
 function App() {
-  const [ingredients, setIngredients] = useState('');
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const fetchCocktail = async () => {
     setLoading(true);
+    const ingredients = selectedIngredients.map(ingredient => ingredient.value).join(', ');
     try {
-      const prompt = `create a unique cocktail that has never been made before using any of the following ingredients: ${ingredients}. Give the cocktail a unique name.`;
+      const prompt = `Generate a unique cocktail recipe using the following ingredients: ${ingredients}.`;
       const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-002/completions', {
-  prompt,
-  max_tokens: 100,
-  n: 1,
-  stop: null,
-  temperature: 0.8,
-}, {
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
-  },
-});
+        prompt,
+        max_tokens: 100,
+        n: 1,
+        stop: null,
+        temperature: 0.8,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+        },
+      });
 
       const generatedRecipe = response.data.choices[0].text.trim();
       setRecipe(generatedRecipe);
@@ -34,13 +55,14 @@ function App() {
   return (
     <div className="App">
       <h1>Unique Cocktail Generator</h1>
-      <label htmlFor="ingredients">Enter ingredients:</label>
-      <input
-        type="text"
+      <label htmlFor="ingredients">Select ingredients:</label>
+      <Select
+        isMulti
         id="ingredients"
-        value={ingredients}
-        onChange={(e) => setIngredients(e.target.value)}
-        placeholder="e.g. vodka, orange juice, grenadine"
+        options={ingredientOptions}
+        onChange={setSelectedIngredients}
+        className="basic-multi-select"
+        classNamePrefix="select"
       />
       <button onClick={fetchCocktail} disabled={loading}>
         {loading ? 'Loading...' : 'Find a Cocktail'}
