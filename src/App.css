@@ -88,3 +88,16 @@ pre {
   border-left: 4px solid #d4af37; /* Updated left border color */
   padding-left: 1rem;
 }
+
+.ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ingredient-category {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
