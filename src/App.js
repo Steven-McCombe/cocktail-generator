@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
+import './App.css';
 
 const categories = {
   liquors: [
@@ -59,14 +60,25 @@ function App() {
           'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
         },
       });
-
-      const generatedRecipe = response.data.choices[0].text.trim().split(',').join(',\n');
-      setRecipe(generatedRecipe);
+  
+      const rawGeneratedRecipe = response.data.choices[0].text.trim();
+      const formattedRecipe = rawGeneratedRecipe.split(',').map((part, index) => {
+        if (index === 0) {
+          return `<b>Name:</b> ${part}`;
+        } else if (index === 1) {
+          return `<b>Ingredients:</b>${part.replace('Ingredients:', '')}`;
+        } else if (index === 2) {
+          return `<b>Instructions:</b>${part.replace('Instructions:', '')}`;
+        }
+        return part;
+      }).join('<br/>');
+      setRecipe(formattedRecipe);
     } catch (error) {
       console.error('Error fetching cocktail recipe:', error);
     }
     setLoading(false);
   };
+  
 
   return (
     <div className="App">
@@ -102,14 +114,15 @@ function App() {
         {loading ? 'Loading...' : 'Find a Cocktail'}
       </button>
       {recipe && (
-        <div>
-          <h2>Generated Cocktail Recipe:</h2>
-          <pre>{recipe}</pre>
-        </div>
-      )}
+  <div>
+    <h2>Generated Cocktail Recipe:</h2>
+    <pre dangerouslySetInnerHTML={{ __html: recipe }}></pre>
+  </div>
+)}
+
     </div>
   );
 }
- 
+
 export default App;
     
