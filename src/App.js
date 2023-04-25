@@ -40,12 +40,17 @@ const categories = {
     { value: 'gin', label: 'Gin' },
     { value: 'rum', label: 'Rum' },
     { value: 'tequila', label: 'Tequila' },
-    { value: 'whiskey', label: 'Whiskey' },
+    { value: 'scotch', label: 'Scotch' },
+    { value: 'bourbon', label: 'Bourbon' },
   ],
   liqueurs: [
     { value: 'triple sec', label: 'Triple Sec' },
     { value: 'kahlua', label: 'Kahlua' },
     { value: 'baileys', label: "Bailey's Irish Cream" },
+    { value: 'cointreau', label: 'Cointreau' },
+{ value: 'amaretto', label: 'Amaretto' },
+{ value: 'frangelico', label: 'Frangelico' },
+{ value: 'chambord', label: 'Chambord' },
   ],
   wines: [
     { value: 'red wine', label: 'Red Wine' },
@@ -57,12 +62,20 @@ const categories = {
     { value: 'lager', label: 'Lager' },
     { value: 'ale', label: 'Ale' },
     { value: 'cider', label: 'Cider' },
+    { value: 'stout', label: 'Stout' },
+{ value: 'pilsner', label: 'Pilsner' },
+{ value: 'wheat beer', label: 'Wheat Beer' },
+{ value: 'sour beer', label: 'Sour Beer' },
   ],
   mixers: [
     { value: 'tonic water', label: 'Tonic Water' },
     { value: 'cola', label: 'Cola' },
     { value: 'lemonade', label: 'Lemonade' },
     { value: 'ginger ale', label: 'Ginger Ale' },
+    { value: 'soda water', label: 'Soda Water' },
+    { value: 'cranberry juice', label: 'Cranberry Juice' },
+    { value: 'pineapple juice', label: 'Pineapple Juice' },
+    { value: 'orange juice', label: 'Orange Juice' },
   ],
   fruits: [
     { value: 'lemon', label: 'Lemon' },
@@ -70,12 +83,17 @@ const categories = {
     { value: 'orange', label: 'Orange' },
     { value: 'pineapple', label: 'Pineapple' },
     { value: 'strawberry', label: 'Strawberry' },
+    { value: 'blueberry', label: 'Blueberry' },
+{ value: 'kiwi', label: 'Kiwi' },
   ],
   herbs: [
     { value: 'mint', label: 'Mint' },
     { value: 'basil', label: 'Basil' },
     { value: 'rosemary', label: 'Rosemary' },
     { value: 'thyme', label: 'Thyme' },
+    { value: 'lavender', label: 'Lavender' },
+{ value: 'sage', label: 'Sage' },
+{ value: 'oregano', label: 'Oregano' },
   ],
 };
 
@@ -182,9 +200,9 @@ const handleNestedMenuClose = () => {
         variant="h3"
         component="h1"
         gutterBottom
-        sx={{ fontFamily: 'cursive', color: 'text.primary' }} // Update the font family and color
+        sx={{ fontFamily: 'cursive', color: 'text.secondary' }} // Update the font family and color
       >
-          Sip.ai
+          Hometails
         </Typography>
         <AppBar position="static">
       <Toolbar>
@@ -264,11 +282,10 @@ const handleNestedMenuClose = () => {
         <Box sx={{ display: 'flex', alignItems: 'flex-end', marginTop: 2, marginBottom: 2 }}>
           <TextField
             id="custom-ingredient"
-            label="Custom Ingredient"
             value={customIngredient}
             onChange={(e) => setCustomIngredient(e.target.value)}
             sx={{ flexGrow: 1, marginRight: 1 }}
-            placeholder="e.g., cranberry juice, grenadine, orgeat"
+            placeholder="Custom Ingredients e.g., cranberry juice, grenadine, orgeat"
             fullWidth
           />
           <Button onClick={addCustomIngredient} variant="contained" color="primary" size="small">
@@ -282,7 +299,7 @@ const handleNestedMenuClose = () => {
           color="secondary"
           sx={{ marginTop: 2, marginBottom: 2 }}
         >
-          {loading ? 'Loading...' : 'Create a Recipe'}
+          {loading ? 'Loading...' : 'Create a Cocktail'}
         </Button>
         {recipe && (
           <Paper
