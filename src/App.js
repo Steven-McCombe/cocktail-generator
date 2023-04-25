@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
-import { Container, Grid, Card, CardContent, Typography, Modal, Box, TextField, Button, Paper } from '@mui/material';
+import { Container, Typography, Modal, Box, TextField, Button, Paper, AppBar, Toolbar, IconButton, Menu, MenuItem } from '@mui/material';
+import LocalBar from '@mui/icons-material/LocalBar';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './App.css';
 import backgroundImage from './bg.png';
@@ -10,7 +11,7 @@ import backgroundImage from './bg.png';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1a237e', // Deep blue
+      main: '#ff5722', // Deep blue
     },
     secondary: {
       main: '#ff5722', // Vibrant orange
@@ -85,6 +86,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [nestedAnchorEl, setNestedAnchorEl] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const addCustomIngredient = () => {
     if (customIngredient) {
@@ -96,6 +100,29 @@ function App() {
     }
   };
 
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const handleNestedMenuOpen = (event, category) => {
+    if (selectedCategory === category) {
+      setSelectedCategory(null);
+      setNestedAnchorEl(null);
+    } else {
+      setSelectedCategory(category);
+      setNestedAnchorEl(event.currentTarget);
+    }
+  };
+  
+
+
+const handleNestedMenuClose = () => {
+  setNestedAnchorEl(null);
+};
   const fetchCocktail = async () => {
     setLoading(true);
     const ingredients = selectedIngredients.map(ingredient => ingredient.value).join(', ');
@@ -159,69 +186,81 @@ function App() {
       >
           Sip.ai
         </Typography>
-        <Grid container spacing={4}>
-          {Object.keys(categories).map((category) => (
-            <Grid item xs={12} sm={6} md={4} key={category}>
-              <Card onClick={() => handleOpenModal(category)} sx={{ cursor: 'pointer', height: '100%' }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                  <Typography variant="h6" component="h2">
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-        <Modal
-          open={openModal}
-          onClose={handleCloseModal}
-          aria-labelledby="modal-title"
-          aria-describedby="modal-description"
+        <AppBar position="static">
+      <Toolbar>
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          onClick={handleMenuClick}
         >
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '50%', // Adjust the width
-              bgcolor: 'background.paper',
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="h6"
-              component="h3"
-              id="modal-title"
-              sx={{ color: 'text.primary' }} // Change font color
-            >
-              {currentCategory && currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}
-            </Typography>
-            <Select
-              isMulti
-              options={currentCategory && categories[currentCategory]}
-              value={selectedIngredients.filter(
-                (ingredient) => currentCategory && categories[currentCategory].includes(ingredient),
-              )}
-              onChange={(newOptions) => {
-                const otherIngredients = selectedIngredients.filter(
-                  (ingredient) => !categories[currentCategory].includes(ingredient),
-                );
-                setSelectedIngredients([...otherIngredients, ...newOptions]);
-              }}
-              className="basic-multi-select"
-              classNamePrefix="select"
-              styles={{
-                option: (provided, state) => ({
-                  ...provided,
-                  color: state.isSelected ? 'white' : 'black', // Change font color based on the selection state
-                }),
-              }}
-            />
-          </Box>
-        </Modal>
+          <LocalBar />
+        </IconButton>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Quick Add Ingredients
+        </Typography>
+      </Toolbar>
+    </AppBar>
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleMenuClose}
+      onClick={handleMenuClose}
+    >
+      {Object.keys(categories).map((category) => (
+  <MenuItem
+    key={category}
+    onClick={(event) => handleNestedMenuOpen(event, category)}
+  >
+    {category.charAt(0).toUpperCase() + category.slice(1)}
+  </MenuItem>
+))}
+    </Menu>
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleMenuClose}
+      onClick={handleMenuClose}
+    >
+   {Object.keys(categories).map((category) => (
+  <MenuItem
+    key={category}
+    onMouseEnter={(event) => handleNestedMenuOpen(event, category)}
+  >
+    {category.charAt(0).toUpperCase() + category.slice(1)}
+  </MenuItem>
+))}
+    </Menu>
+    <Menu
+  anchorEl={nestedAnchorEl}
+  open={Boolean(nestedAnchorEl)}
+  onClose={handleNestedMenuClose}
+  onClick={handleNestedMenuClose}
+  anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+  getContentAnchorEl={null}
+>
+  {selectedCategory &&
+    categories[selectedCategory].map((ingredient) => (
+      <MenuItem
+        key={ingredient.value}
+        onClick={() => {
+          setSelectedIngredients([
+            ...selectedIngredients,
+            { value: ingredient.value, label: ingredient.label },
+          ]);
+        }}
+      >
+        {ingredient.label}
+      </MenuItem>
+    ))}
+</Menu>
         <Box sx={{ display: 'flex', alignItems: 'flex-end', marginTop: 2, marginBottom: 2 }}>
           <TextField
             id="custom-ingredient"
