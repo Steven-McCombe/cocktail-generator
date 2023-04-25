@@ -1,7 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
+import { Container, Grid, Card, CardContent, Typography, Modal, Box, TextField, Button, Paper } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './App.css';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#3f51b5',
+    },
+    secondary: {
+      main: '#f50057',
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: 16,
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+  },
+});
 
 const categories = {
   spirits: [
@@ -53,6 +73,8 @@ function App() {
   const [customIngredient, setCustomIngredient] = useState('');
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState(null);
 
   const addCustomIngredient = () => {
     if (customIngredient) {
@@ -100,51 +122,128 @@ function App() {
     }
     setLoading(false);
   };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleOpenModal = (category) => {
+    setCurrentCategory(category);
+    setOpenModal(true);
+  };
+
   
 
   return (
-    <div className="App">
-    <h1>Unique Cocktail Generator</h1>
-    <div className="ingredient-grid">
-      {Object.entries(categories).map(([category, options]) => (
-        <div key={category} className="ingredient-category">
-          <label htmlFor={`${category}-ingredients`}>{category.charAt(0).toUpperCase() + category.slice(1)}:</label>
-          <Select
-            isMulti
-            id={`${category}-ingredients`}
-            options={options}
-            value={selectedIngredients.filter(ingredient => options.includes(ingredient))}
-            onChange={(newOptions) => {
-              const otherIngredients = selectedIngredients.filter(ingredient => !options.includes(ingredient));
-              setSelectedIngredients([...otherIngredients, ...newOptions]);
+    <ThemeProvider theme={theme}>
+      <Container maxWidth="md">
+        <Typography variant="h3" component="h1" gutterBottom>
+          Unique Cocktail Generator
+        </Typography>
+        <Grid container spacing={4}>
+          {Object.keys(categories).map((category) => (
+            <Grid item xs={12} sm={6} md={4} key={category}>
+              <Card onClick={() => handleOpenModal(category)} sx={{ cursor: 'pointer' }}>
+                <CardContent>
+                  <Typography variant="h6" component="h2">
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+        <Modal
+          open={openModal}
+          onClose={handleCloseModal}
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '50%', // Adjust the width
+              bgcolor: 'background.paper',
+              boxShadow: 24,
+              p: 4,
             }}
-            className="basic-multi-select"
-            classNamePrefix="select"
+          >
+            <Typography
+              variant="h6"
+              component="h3"
+              id="modal-title"
+              sx={{ color: 'text.primary' }} // Change font color
+            >
+              {currentCategory && currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)}
+            </Typography>
+            <Select
+              isMulti
+              options={currentCategory && categories[currentCategory]}
+              value={selectedIngredients.filter(
+                (ingredient) => currentCategory && categories[currentCategory].includes(ingredient),
+              )}
+              onChange={(newOptions) => {
+                const otherIngredients = selectedIngredients.filter(
+                  (ingredient) => !categories[currentCategory].includes(ingredient),
+                );
+                setSelectedIngredients([...otherIngredients, ...newOptions]);
+              }}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              styles={{
+                option: (provided, state) => ({
+                  ...provided,
+                  color: state.isSelected ? 'white' : 'black', // Change font color based on the selection state
+                }),
+              }}
+            />
+          </Box>
+        </Modal>
+        <div>
+          <TextField
+            id="custom-ingredient"
+            label="Custom Ingredient"
+            value={customIngredient}
+            onChange={(e) => setCustomIngredient(e.target.value)}
+            sx={{ marginTop: 2, marginBottom: 2, marginRight: 1 }}
           />
+          <Button onClick={addCustomIngredient} variant="contained" color="primary" >
+            Add
+          </Button>
         </div>
-      ))}
-    </div>
-      <div>
-        <label htmlFor="custom-ingredient">Custom Ingredient:</label>
-        <input
-          id="custom-ingredient"
-          type="text"
-          value={customIngredient}
-          onChange={(e) => setCustomIngredient(e.target.value)}
-        />
-        <button onClick={addCustomIngredient}>Add</button>
-      </div>
-      <button onClick={fetchCocktail} disabled={loading}>
-        {loading ? 'Loading...' : 'Find a Cocktail'}
-      </button>
-      {recipe && (
-  <div>
-    <h2>Generated Cocktail Recipe:</h2>
-    <pre dangerouslySetInnerHTML={{ __html: recipe }}></pre>
-  </div>
-)}
-
-    </div>
+        <Button
+          onClick={fetchCocktail}
+          disabled={loading}
+          variant="contained"
+          color="secondary"
+          sx={{ marginTop: 2, marginBottom: 2 }}
+        >
+          {loading ? 'Loading...' : 'Find a Cocktail'}
+        </Button>
+        {recipe && (
+          <Paper
+            elevation={3}
+            sx={{
+              marginTop: 4,
+              padding: 3,
+              borderRadius: 2,
+              backgroundColor: 'background.default',
+            }}
+          >
+            <Typography variant="h5" component="h2" gutterBottom>
+              Generated Cocktail Recipe
+            </Typography>
+            <div
+              dangerouslySetInnerHTML={{ __html: recipe }}
+              style={{ whiteSpace: 'pre-wrap' }}
+            ></div>
+          </Paper>
+        )}
+      </Container>
+    </ThemeProvider>
   );
 }
 
