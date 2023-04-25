@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/cocktail-generator/static/css/main.8f82c0e1.css",
+    "main.js": "/cocktail-generator/static/js/main.be2318b8.js",
+    "static/js/787.c96addfc.chunk.js": "/cocktail-generator/static/js/787.c96addfc.chunk.js",
+    "static/media/bg.png": "/cocktail-generator/static/media/bg.5ad4ed3a0b2cc6229015.png",
+    "index.html": "/cocktail-generator/index.html",
+    "main.8f82c0e1.css.map": "/cocktail-generator/static/css/main.8f82c0e1.css.map",
+    "main.be2318b8.js.map": "/cocktail-generator/static/js/main.be2318b8.js.map",
+    "787.c96addfc.chunk.js.map": "/cocktail-generator/static/js/787.c96addfc.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8f82c0e1.css",
+    "static/js/main.be2318b8.js"
+  ]
+}
