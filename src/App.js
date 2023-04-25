@@ -4,14 +4,24 @@ import Select from 'react-select';
 import { Container, Grid, Card, CardContent, Typography, Modal, Box, TextField, Button, Paper } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './App.css';
+import backgroundImage from './bg.png';
+
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#3f51b5',
+      main: '#1a237e', // Deep blue
     },
     secondary: {
-      main: '#f50057',
+      main: '#ff5722', // Vibrant orange
+    },
+    background: {
+      default: '#fff8e1', // Light cream
+      paper: '#fff',
+    },
+    text: {
+      primary: '#212121',
+      secondary: '#757575',
     },
   },
   typography: {
@@ -132,19 +142,28 @@ function App() {
     setOpenModal(true);
   };
 
-  
-
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="md">
-        <Typography variant="h3" component="h1" gutterBottom>
-          Unique Cocktail Generator
+    <Container maxWidth="md" className="App" style={{
+      backgroundImage: `url('${backgroundImage}')`,
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+      minHeight: '100vh'
+    }}>
+      <Typography
+        variant="h3"
+        component="h1"
+        gutterBottom
+        sx={{ fontFamily: 'cursive', color: 'text.primary' }} // Update the font family and color
+      >
+          Sip.ai
         </Typography>
         <Grid container spacing={4}>
           {Object.keys(categories).map((category) => (
             <Grid item xs={12} sm={6} md={4} key={category}>
-              <Card onClick={() => handleOpenModal(category)} sx={{ cursor: 'pointer' }}>
-                <CardContent>
+              <Card onClick={() => handleOpenModal(category)} sx={{ cursor: 'pointer', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                   <Typography variant="h6" component="h2">
                     {category.charAt(0).toUpperCase() + category.slice(1)}
                   </Typography>
@@ -169,6 +188,7 @@ function App() {
               bgcolor: 'background.paper',
               boxShadow: 24,
               p: 4,
+              borderRadius: 2,
             }}
           >
             <Typography
@@ -202,18 +222,20 @@ function App() {
             />
           </Box>
         </Modal>
-        <div>
+        <Box sx={{ display: 'flex', alignItems: 'flex-end', marginTop: 2, marginBottom: 2 }}>
           <TextField
             id="custom-ingredient"
             label="Custom Ingredient"
             value={customIngredient}
             onChange={(e) => setCustomIngredient(e.target.value)}
-            sx={{ marginTop: 2, marginBottom: 2, marginRight: 1 }}
+            sx={{ flexGrow: 1, marginRight: 1 }}
+            placeholder="e.g., cranberry juice, grenadine, orgeat"
+            fullWidth
           />
-          <Button onClick={addCustomIngredient} variant="contained" color="primary" >
+          <Button onClick={addCustomIngredient} variant="contained" color="primary" size="small">
             Add
           </Button>
-        </div>
+        </Box>
         <Button
           onClick={fetchCocktail}
           disabled={loading}
@@ -221,7 +243,7 @@ function App() {
           color="secondary"
           sx={{ marginTop: 2, marginBottom: 2 }}
         >
-          {loading ? 'Loading...' : 'Find a Cocktail'}
+          {loading ? 'Loading...' : 'Create a Recipe'}
         </Button>
         {recipe && (
           <Paper
@@ -234,7 +256,7 @@ function App() {
             }}
           >
             <Typography variant="h5" component="h2" gutterBottom>
-              Generated Cocktail Recipe
+              Cocktail Recipe
             </Typography>
             <div
               dangerouslySetInnerHTML={{ __html: recipe }}
@@ -248,4 +270,5 @@ function App() {
 }
 
 export default App;
-    
+            
+
