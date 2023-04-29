@@ -3,6 +3,7 @@ import axios from 'axios';
 import Select from 'react-select';
 import { Container, Typography, Modal, Box, TextField, Button, Paper, AppBar, Toolbar, IconButton, Menu, MenuItem } from '@mui/material';
 import LocalBar from '@mui/icons-material/LocalBar';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './App.css';
 import backgroundImage from './bg.png';
@@ -110,10 +111,12 @@ function App() {
 
   const addCustomIngredient = () => {
     if (customIngredient) {
-      setSelectedIngredients([
-        ...selectedIngredients,
-        { value: customIngredient, label: customIngredient },
-      ]);
+      const ingredients = customIngredient.split(',').map((i) => i.trim());
+      const newIngredients = ingredients.map((ingredient) => ({
+        value: ingredient,
+        label: ingredient,
+      }));
+      setSelectedIngredients([...selectedIngredients, ...newIngredients]);
       setCustomIngredient('');
     }
   };
@@ -136,7 +139,10 @@ function App() {
     }
   };
   
-
+  const removeSelectedIngredient = (ingredientToRemove) => {
+    setSelectedIngredients(selectedIngredients.filter((ingredient) => ingredient.value !== ingredientToRemove.value));
+  };
+  
 
 const handleNestedMenuClose = () => {
   setNestedAnchorEl(null);
@@ -145,13 +151,25 @@ const handleNestedMenuClose = () => {
     setLoading(true);
     const ingredients = selectedIngredients.map(ingredient => ingredient.value).join(', ');
     try {
-      const prompt = `Generate a cocktail recipe using any of the following ingredients(Remember you don't have to use all of the, bonus points if you create something unique. You can assume i have some general household ingredients like milk, coffee, pepper etc.): ${ingredients}. Respond with the following format: Name:, Ingredients:, Instructions:. You should also take into consideration dangerous ingredients that are not fit for human consumption and ignore them. Include measurements for all ingredients`;
-      const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-002/completions', {
+      const prompt = `You will be provided with ingredients delimited by triple quotes. \
+      your task is to create a cocktail recipe using those ingredients. \
+      you can use a recipe that already exists but you should also consider a unique cocktail.\
+      You need to ensure that the cocktail is fit for human consumption. \
+      if the ingredients list contains an ingredient that is not safe to consume please exclude that from the recipe.\
+      You do not have to use every ingredient listed and you can assume that I have general household ingredients like salt/pepper etc.\
+      When you have completed this task you should perform the following actions.\
+      1. Devise an Name for the Cocktail format this in HTML with a Cocktail Name heading. \
+      2. List the ingredients for the Cocktail along with the required measurements per serving. Format this list in HTML with an ingredients heading\
+      3. Create a step by step instructions for how to create the cocktail. Return the step by steps as a numbered sequence. Format this in HTML with an instructions heading\
+      4. Calculate the nutritional value of the cocktail and return a HTML formatted table with a Nutrition heading include the following in the table Calories, Total Fat, Cholesterol, Sodium, total Carbohydrates (Fiber/Sugars), Protein, Vitamin C, Calcium, Iron, Potassium. You should also include the % daily value of these nutrients. The % Daily Value (DV) tells you how much a nutrient in a food serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice. \
+      """${ingredients}"""\
+      `;
+      const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
         prompt,
-        max_tokens: 200,
+        max_tokens: 500,
         n: 1,
         stop: null,
-        temperature: 0.8,
+        temperature: 0.2,
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -202,23 +220,27 @@ const handleNestedMenuClose = () => {
         gutterBottom
         sx={{ fontFamily: 'cursive', color: 'text.secondary' }} // Update the font family and color
       >
-          Hometails
+          PourPal
         </Typography>
         <AppBar position="static">
-      <Toolbar>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          onClick={handleMenuClick}
-        >
-          <LocalBar />
-        </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Quick Add Ingredients
-        </Typography>
-      </Toolbar>
-    </AppBar>
+  <Toolbar>
+    <Box
+      onClick={handleMenuClick}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        cursor: 'pointer',
+      }}
+    >
+      <IconButton edge="start" color="inherit" aria-label="menu">
+        <LocalBar />
+      </IconButton>
+      <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        Quick Add Ingredients
+      </Typography>
+    </Box>
+  </Toolbar>
+</AppBar>
     <Menu
       anchorEl={anchorEl}
       open={Boolean(anchorEl)}
@@ -301,6 +323,34 @@ const handleNestedMenuClose = () => {
         >
           {loading ? 'Loading...' : 'Create a Cocktail'}
         </Button>
+        <Box sx={{ marginTop: 2, marginBottom: 2 }}>
+  <Typography variant="h6" component="h3" gutterBottom>
+    Your Home Bar Ingredients:
+  </Typography>
+  {selectedIngredients.map((ingredient) => (
+    <Box
+      key={ingredient.value}
+      sx={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        borderRadius: 1,
+        border: '1px solid',
+        borderColor: 'divider',
+        padding: 0.5,
+        margin: 0.5,
+      }}
+    >
+      <Typography variant="caption">{ingredient.label}</Typography>
+      <IconButton
+        edge="end"
+        size="small"
+        onClick={() => removeSelectedIngredient(ingredient)}
+      >
+        <DeleteIcon fontSize="small" />
+      </IconButton>
+    </Box>
+  ))}
+</Box>
         {recipe && (
           <Paper
             elevation={3}
@@ -311,9 +361,6 @@ const handleNestedMenuClose = () => {
               backgroundColor: 'background.default',
             }}
           >
-            <Typography variant="h5" component="h2" gutterBottom>
-              Cocktail Recipe
-            </Typography>
             <div
               dangerouslySetInnerHTML={{ __html: recipe }}
               style={{ whiteSpace: 'pre-wrap' }}
