@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Select from 'react-select';
-import { Container, Typography, Modal, Box, TextField, Button, Paper, AppBar, Toolbar, IconButton, Menu, MenuItem } from '@mui/material';
+import { Container, Typography, Box, TextField, Button, Paper, AppBar, Toolbar, IconButton, Menu, MenuItem } from '@mui/material';
 import LocalBar from '@mui/icons-material/LocalBar';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import './App.css';
-import backgroundImage from './bg.png';
-
+import "./paper.css"
 
 const theme = createTheme({
   palette: {
@@ -64,9 +61,9 @@ const categories = {
     { value: 'ale', label: 'Ale' },
     { value: 'cider', label: 'Cider' },
     { value: 'stout', label: 'Stout' },
-{ value: 'pilsner', label: 'Pilsner' },
-{ value: 'wheat beer', label: 'Wheat Beer' },
-{ value: 'sour beer', label: 'Sour Beer' },
+    { value: 'pilsner', label: 'Pilsner' },
+    { value: 'wheat beer', label: 'Wheat Beer' },
+    { value: 'sour beer', label: 'Sour Beer' },
   ],
   mixers: [
     { value: 'tonic water', label: 'Tonic Water' },
@@ -85,7 +82,7 @@ const categories = {
     { value: 'pineapple', label: 'Pineapple' },
     { value: 'strawberry', label: 'Strawberry' },
     { value: 'blueberry', label: 'Blueberry' },
-{ value: 'kiwi', label: 'Kiwi' },
+    { value: 'kiwi', label: 'Kiwi' },
   ],
   herbs: [
     { value: 'mint', label: 'Mint' },
@@ -93,8 +90,8 @@ const categories = {
     { value: 'rosemary', label: 'Rosemary' },
     { value: 'thyme', label: 'Thyme' },
     { value: 'lavender', label: 'Lavender' },
-{ value: 'sage', label: 'Sage' },
-{ value: 'oregano', label: 'Oregano' },
+    { value: 'sage', label: 'Sage' },
+    { value: 'oregano', label: 'Oregano' },
   ],
 };
 
@@ -166,18 +163,8 @@ const handleNestedMenuClose = () => {
       });
   
       const rawGeneratedRecipe = response.data.choices[0].text.trim();
-      const parts = rawGeneratedRecipe.split(/, (?=[a-zA-Z]+:)/); // Split on commas followed by a word and a colon
-      const formattedRecipe = parts.map((part, index) => {
-        if (index === 0) {
-          return `<b>Name:</b> ${part}`;
-        } else if (index === 1) {
-          return `<b>Ingredients:</b>${part.replace('Ingredients:', '').replace(/, /g, '<br/>')}`;
-        } else if (index === 2) {
-          return `<b>Instructions:</b>${part.replace('Instructions:', '').replace(/, /g, '<br/>')}`;
-        }
-        return part;
-      }).join('<br/>');
-      setRecipe(formattedRecipe);
+   
+      setRecipe(rawGeneratedRecipe);
     } catch (error) {
       console.error('Error fetching cocktail recipe:', error);
     }
@@ -193,23 +180,21 @@ const handleNestedMenuClose = () => {
     setOpenModal(true);
   };
 
+  const printRecipe = () => {
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>Print Recipe</title></head><body>');
+    printWindow.document.write('<h1>' + document.title + '</h1>');
+    printWindow.document.write(document.getElementById('recipe-content').innerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
     <ThemeProvider theme={theme}>
     <Container maxWidth="md" className="App" style={{
-      backgroundImage: `url('${backgroundImage}')`,
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
-      minHeight: '100vh'
     }}>
-      <Typography
-        variant="h3"
-        component="h1"
-        gutterBottom
-        sx={{ fontFamily: 'cursive', color: 'text.secondary' }} // Update the font family and color
-      >
-          PourPal
-        </Typography>
+      <h1>PourPal.ai</h1>
         <AppBar position="static">
   <Toolbar>
     <Box
@@ -295,7 +280,7 @@ const handleNestedMenuClose = () => {
             value={customIngredient}
             onChange={(e) => setCustomIngredient(e.target.value)}
             sx={{ flexGrow: 1, marginRight: 1 }}
-            placeholder="Custom Ingredients e.g., cranberry juice, grenadine, orgeat"
+            placeholder="Custom Ingredients e.g., cranberry juice, grenadine, vodka."
             fullWidth
           />
           <Button onClick={addCustomIngredient} variant="contained" color="primary" size="small">
@@ -339,22 +324,31 @@ const handleNestedMenuClose = () => {
     </Box>
   ))}
 </Box>
-        {recipe && (
-          <Paper
-            elevation={3}
-            sx={{
-              marginTop: 4,
-              padding: 3,
-              borderRadius: 2,
-              backgroundColor: 'background.default',
-            }}
-          >
-            <div
-              dangerouslySetInnerHTML={{ __html: recipe }}
-              style={{ whiteSpace: 'pre-wrap' }}
-            ></div>
-          </Paper>
-        )}
+{recipe && (
+  <Paper
+    elevation={3}
+    sx={{
+      marginTop: 4,
+      padding: 3,
+      borderRadius: 2,
+      backgroundColor: 'background.default',
+    }}
+  >
+    <div
+      id="recipe-content"
+      dangerouslySetInnerHTML={{ __html: recipe }}
+      style={{ whiteSpace: 'pre-wrap' }}
+    ></div>
+<Button
+  variant="contained"
+  color="primary"
+  sx={{ marginTop: 2 }}
+  onClick={printRecipe}
+>
+  Print Recipe
+</Button>
+  </Paper>
+)}
       </Container>
     </ThemeProvider>
   );
