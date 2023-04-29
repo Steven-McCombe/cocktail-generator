@@ -5,6 +5,7 @@ import LocalBar from '@mui/icons-material/LocalBar';
 import ClearIcon from '@mui/icons-material/Clear';
 import CircularProgress from '@mui/material/CircularProgress';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import logo from './logonew.png';
 
 const theme = createTheme({
   palette: {
@@ -197,9 +198,16 @@ const handleNestedMenuClose = () => {
     <ThemeProvider theme={theme}>
     <Container maxWidth="md" className="App" style={{
     }}>
+       <Box
+      sx={{
+        display: 'flex',
+      }}
+    >
+      <img src={logo} alt="Logo" style={{ width: '64px', height: 'auto' }} />
       <h1>PourPal.ai</h1>
-      <p>Sip the Future: AI-powered cocktails made just for you</p>
-        <AppBar position="static">
+
+    </Box>
+    <AppBar position="static">
   <Toolbar>
     <Box
       onClick={handleMenuClick}
