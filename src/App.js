@@ -151,22 +151,10 @@ const handleNestedMenuClose = () => {
     setLoading(true);
     const ingredients = selectedIngredients.map(ingredient => ingredient.value).join(', ');
     try {
-      const prompt = `You will be provided with ingredients delimited by triple quotes. \
-      your task is to create a cocktail recipe using those ingredients. \
-      you can use a recipe that already exists but you should also consider a unique cocktail.\
-      You need to ensure that the cocktail is fit for human consumption. \
-      if the ingredients list contains an ingredient that is not safe to consume please exclude that from the recipe.\
-      You do not have to use every ingredient listed and you can assume that I have general household ingredients like salt/pepper etc.\
-      When you have completed this task you should perform the following actions.\
-      1. Devise an Name for the Cocktail format this in HTML with a Cocktail Name heading. \
-      2. List the ingredients for the Cocktail along with the required measurements per serving. Format this list in HTML with an ingredients heading\
-      3. Create a step by step instructions for how to create the cocktail. Return the step by steps as a numbered sequence. Format this in HTML with an instructions heading\
-      4. Calculate the nutritional value of the cocktail and return a HTML formatted table with a Nutrition heading include the following in the table Calories, Total Fat, Cholesterol, Sodium, total Carbohydrates (Fiber/Sugars), Protein, Vitamin C, Calcium, Iron, Potassium. You should also include the % daily value of these nutrients. The % Daily Value (DV) tells you how much a nutrient in a food serving contributes to a daily diet. 2,000 calories a day is used for general nutrition advice. \
-      """${ingredients}"""\
-      `;
+      const prompt = `You will be provided with a list of ingredients separated by triple quotes. \ Your task is to create a cocktail recipe using some of those ingredients, up to a maximum of 5 ingredients. You don't have to use all of them. \ You may use an existing recipe or create a unique cocktail. \ Please ensure that the cocktail is safe and fit for human consumption. \ If the ingredients list contains an item that is not safe to consume, exclude it from the recipe.\ You can assume the availability of general household ingredients like salt and pepper.\ Once you have completed this task, please perform the following actions:\ 1. Verify that you have adhered to all instructions in the task, especially avoiding the inclusion of ingredients unfit for human consumption. 2. Provide a name for the cocktail and format it in HTML with a Cocktail Name heading. \ 3. List the ingredients for the cocktail along with the required measurements per serving. Format this list in HTML with an 'Ingredients' heading.\ 4. Create step-by-step instructions for preparing the cocktail. Return the instructions as a numbered sequence, formatted in HTML with an 'Instructions' heading.\ 5. Calculate the nutritional value of the cocktail and return an HTML formatted table with a 'Nutrition' heading. Include the following in the table: Calories, Total Fat, Sodium, Total Carbohydrates (Fiber/Sugars), and the % daily value of these nutrients. The % Daily Value (DV) indicates how much a nutrient in a food serving contributes to a daily diet. Use 2,000 calories a day for general nutrition advice. \ """${ingredients}"""\ `;
       const response = await axios.post('https://api.openai.com/v1/engines/text-davinci-003/completions', {
         prompt,
-        max_tokens: 500,
+        max_tokens: 1000,
         n: 1,
         stop: null,
         temperature: 0.2,
