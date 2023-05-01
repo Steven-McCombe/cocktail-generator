@@ -309,7 +309,7 @@ const handleNestedMenuClose = () => {
   {loading ? (
     <>
       <CircularProgress size={24} color="inherit" />
-      <span style={{ marginLeft: '8px' }}>Loading...</span>
+      <span style={{ marginLeft: '8px' }}>Mixing...</span>
     </>
   ) : (
     'Create a Cocktail'
